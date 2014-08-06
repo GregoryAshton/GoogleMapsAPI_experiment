@@ -1,11 +1,15 @@
+#!/usr/bin/python
+
 import simplejson, urllib
 import random
 import os
 import pandas as pd
+import argparse
+import matplotlib.pyplot as plt
 
 DISTANCEMATRIX_BASE_URL = 'http://maps.googleapis.com/maps/api/distancematrix/json'
 
-def get_data(origin, destination, **geo_args):
+def GetData(origin, destination, **geo_args):
     geo_args.update({
         'origins' : origin,
         'destinations' : destination, 
@@ -42,7 +46,7 @@ def get_origin_destination():
 
 def test():
     origin, destination = get_origin_destination()
-    duration_s, distance_m, v_ave_kmph = get_data(origin, destination)
+    duration_s, distance_m, v_ave_kmph = GetData(origin, destination)
     print "{} to {} is {} km, takes {} hours so v_ave = {} km/h".format(
            origin, destination, distance_m*1e-3, duration_s/(60.0*60), v_ave_kmph)
 
@@ -64,12 +68,12 @@ def UpdateResults(file_name, results):
         df = pd.DataFrame(results, index=[0])
     df.to_csv(file_name, sep=" ")   
 
-def collect_results(N):
+def CollectResults(N):
     for i in range(N):
         file_name = "Results_UK.txt"
         origin, destination = get_origin_destination()
         try:
-            duration_s, distance_m, v_ave_kmph = get_data(origin, destination)
+            duration_s, distance_m, v_ave_kmph = GetData(origin, destination)
             results = {'origin' : origin,
                        'destination' : destination,
                        'duration_s' : duration_s,
@@ -80,5 +84,25 @@ def collect_results(N):
         except KeyError:
             pass
 
-if __name__ == '__main__':
-    collect_results(100)
+def PlotResults():
+    file_name = "Results_UK.txt"
+    df = pd.read_csv(file_name, sep=" ", skipinitialspace=True)
+    plt.plot(df.duration_s, df.distance_m, "o")
+    plt.show()
+    
+def _setupArgs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--CollectResults",
+                        action="store_true", help=CollectResults.__doc__)
+    parser.add_argument("-N", default=100, type=int,
+                        help="Number of points to add to file_name")
+    parser.add_argument("-p", "--PlotResults", 
+                        action="store_true", help=PlotResults.__doc__)
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = _setupArgs()
+    if args.CollectResults:
+        CollectResults(args.N)
+    if args.PlotResults:
+        PlotResults()
