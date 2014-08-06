@@ -1,5 +1,7 @@
 import simplejson, urllib
 import random
+import os
+import pandas as pd
 
 DISTANCEMATRIX_BASE_URL = 'http://maps.googleapis.com/maps/api/distancematrix/json'
 
@@ -44,5 +46,39 @@ def test():
     print "{} to {} is {} km, takes {} hours so v_ave = {} km/h".format(
            origin, destination, distance_m*1e-3, duration_s/(60.0*60), v_ave_kmph)
 
+def UpdateResults(file_name, results):
+    """ Look for existing file and append new results, if it doesn't 
+        exist then create it
+
+    parameters
+    ----------
+    file_name : str
+        file path to save
+    results : dict
+        Dictionary of columns and values to save
+    """
+    if os.path.isfile(file_name):
+        df = pd.read_csv(file_name, sep=" ", skipinitialspace=True)
+        df = df.append(results, ignore_index=True)
+    else:
+        df = pd.DataFrame(results, index=[0])
+    df.to_csv(file_name, sep=" ")   
+
+def collect_results(N):
+    for i in range(N):
+        file_name = "Results_UK.txt"
+        origin, destination = get_origin_destination()
+        try:
+            duration_s, distance_m, v_ave_kmph = get_data(origin, destination)
+            results = {'origin' : origin,
+                       'destination' : destination,
+                       'duration_s' : duration_s,
+                       'distance_m' : distance_m,
+                       'v_ave_kmph' : v_ave_kmph
+                      }
+            UpdateResults(file_name, results)
+        except KeyError:
+            pass
+
 if __name__ == '__main__':
-    test()
+    collect_results(100)
