@@ -38,6 +38,11 @@ def GetCSVFile(key):
     except KeyError:
         print "CSV key not in exsistence"
 
+def GetResultsFile(key):
+    directory = "./Results_database/"
+    file_name = directory+"Results_{}.txt".format(key)
+    return file_name
+
 def mps_TO_kmph(vel_mps):
     return vel_mps * 1e-3 * (60.0 * 60.0)
 
@@ -94,7 +99,7 @@ def CollectResults(N, Country):
         Country code, default is given by the first argument to Country argument
     """
 
-    results_file = "Results_{}.txt".format(Country)
+    results_file = GetResultsFile(Country)
     for i in range(N):
         origin, destination = get_origin_destination()
         try:
@@ -112,7 +117,7 @@ def CollectResults(N, Country):
 def PlotDistanceTime(Countries):
     """Plot the distance against time for Country in Countries """
     for Country in Countries:
-        results_file = "Results_{}.txt".format(Country)
+        results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
 
         print "Average speed = {} kmph".format(
@@ -132,7 +137,7 @@ def PlotDistanceTime(Countries):
 def PlotVelocities(Countries):
     """ Plot the velocities of the Countries """
     for Country in Countries:
-        results_file = "Results_{}.txt".format(Country)
+        results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
         plt.hist(df.v_ave_kmph, bins=50, label=Country, alpha=0.5, normed=True)
 
