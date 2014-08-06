@@ -1,5 +1,5 @@
 Google maps travel time experiment
-----------------------------------
+==================================
 
 
 This project aims to use the travel time data provided by Google through it's
@@ -13,3 +13,9 @@ we can test the question "Which country drives the fastest?".
 Notes:
 -----
 Curently this requires data to be downloaded from [Dan Gibbs git repo](https://github.com/Gibbs/UK-Postcodes)
+
+Dependencies
+------------
++ simplejson
+
+   ``$ pip install simplejson``
