@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import argparse
 import matplotlib.pyplot as plt
+import numpy as np
 
 DISTANCEMATRIX_BASE_URL = 'http://maps.googleapis.com/maps/api/distancematrix/json'
 
@@ -88,6 +89,11 @@ def PlotResults():
     file_name = "Results_UK.txt"
     df = pd.read_csv(file_name, sep=" ", skipinitialspace=True)
     plt.plot(df.duration_s, df.distance_m, "o")
+
+    speed_limit_mph = 70
+    speed_limit_mps = speed_limit_mph * 1609. / (60 * 60)
+    distances = np.linspace(0, 1e7, 100)
+    plt.plot(distances/speed_limit_mps, distances)
     plt.show()
     
 def _setupArgs():
