@@ -37,6 +37,7 @@ def GetData(origin, destination, **args):
         'origins' : origin,
         'destinations' : destination, 
         'mode' : 'driving',
+        'units' : 'metric'
         })
     url = DISTANCEMATRIX_BASE_URL + '?' + urllib.urlencode(args)
     result = simplejson.load(urllib.urlopen(url))
@@ -129,7 +130,7 @@ def CollectResults(N, CC):
         origin, destination = df.ix[rns].ZIP.values
         try:
             duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
-                                                         #key=key,
+                                                         key=key,
                                                          )
             results = {'origin' : origin,
                        'destination' : destination,
@@ -171,8 +172,10 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
             plt.bar(binEdges[:-1], y, width=np.diff(binEdges), 
                     label=Country, **kwargs)
         elif ptype == 'line':
+            c = np.random.uniform(0, 1, 3)
             bincenters = 0.5*(binEdges[1:]+binEdges[:-1])
-            plt.plot(bincenters, y, label=Country, **kwargs)
+            plt.plot(bincenters, y, label=Country, color=c, **kwargs)
+            plt.fill_between(bincenters, 0, y, color=c, alpha=0.2)
 
     plt.xlabel("Velocity [km/h]")
     plt.ylabel("Normalised count")
