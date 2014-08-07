@@ -136,15 +136,12 @@ def PlotDistanceTime(Countries):
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
 
-        print "Average speed = {} kmph".format(
-                mps_TO_kmph(np.average(df.distance_m)/np.average(df.duration_s)))
+        print "Average speed = {} kmph in {}".format(
+                mps_TO_kmph(np.average(df.distance_m)/np.average(df.duration_s)),
+                Country)
         plt.plot(df.duration_s, df.distance_m, "o", alpha=0.3,
                  label=Country)
 
-        #speed_limit_mph = 70
-        #speed_limit_mps = speed_limit_mph * 1609. / (60 * 60)
-        #distances = np.linspace(0, 1e7, 100)
-        #plt.plot(distances/speed_limit_mps, distances)
     plt.xlabel("Time [s]")
     plt.ylabel("Distance [m]")
     plt.legend(loc=2, frameon=False)
