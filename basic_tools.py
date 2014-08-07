@@ -13,6 +13,15 @@ rc_file("/home/greg/Neutron_star_modelling/matplotlibrc")
 
 DISTANCEMATRIX_BASE_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
 
+def GetCC():
+    df = GetLocationData()
+    CCs = np.unique(df.CC.values)
+
+    print "List of Country Codes:"
+    print "Country codes : # entries"
+    for CC in CCs:
+        print "{} : {}".format(CC, len(df[df.CC==CC]))
+
 def GetData(origin, destination, **args):
     args.update({
         'origins' : origin,
@@ -165,11 +174,15 @@ def _setupArgs():
                         action="store_true")
     parser.add_argument("-c", "--Country", default="UK", type=str, nargs="*",
                         help="Country to use datafile from")
+    parser.add_argument("-g", "--GetCountryCodes", action="store_true", 
+                        help="Print a list of usable Country codes")
 
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = _setupArgs()
+    if args.GetCountryCodes:
+        GetCC()
     if args.CollectResults:
         CollectResults(N=args.N, CC=args.Country[0])
     if args.PlotDistanceTime:
