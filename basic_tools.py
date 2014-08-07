@@ -8,6 +8,7 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import rc_file
+import logging
 rc_file("/home/greg/Neutron_star_modelling/matplotlibrc")
 
 DISTANCEMATRIX_BASE_URL = 'http://maps.googleapis.com/maps/api/distancematrix/json'
@@ -21,22 +22,22 @@ def GetData(origin, destination, **geo_args):
 
     url = DISTANCEMATRIX_BASE_URL + '?' + urllib.urlencode(geo_args)
     result = simplejson.load(urllib.urlopen(url))
-    data = result['rows'][0]['elements'][0]
+    try:
+        data = result['rows'][0]['elements'][0]
+    except IndexError:
+        print("Downloaed data: ", result)
+        raise LookupError("The downloaded data does not match expectations")
 
     duration = float(data['duration']['value'])
     distance = float(data['distance']['value'])
     v_ave = mps_TO_kmph(distance/duration)
     return duration, distance, v_ave
 
-def GetCSVFile(key):
-    directory = "./CSV_database/"
-    CSV_dict = {"UK" : directory+"postcodes.csv",
-                "USA" : directory + "zip_code_database.csv"
-               }
-    try:
-        return CSV_dict[key]
-    except KeyError:
-        print "CSV key not in exsistence"
+def GetLocationData():
+    source_file = "./CSV_database/allCountries.txt"
+    df = pd.read_table(source_file, sep="\t", encoding="utf8", 
+                       usecols=[0, 1], names=["CC", "ZIP"])
+    return df
 
 def GetResultsFile(key):
     directory = "./Results_database/"
@@ -46,26 +47,11 @@ def GetResultsFile(key):
 def mps_TO_kmph(vel_mps):
     return vel_mps * 1e-3 * (60.0 * 60.0)
 
-def random_line():
-    " Pick random line from file http://stackoverflow.com/questions/3540288/how-do-i-read-a-random-line-from-one-file-in-python"
-    source_file_name = GetCSVFile(args.Country)
-    source_file = open(source_file_name)
-    line = next(source_file)
-    for num, aline in enumerate(source_file):
-      if random.randrange(num + 2): continue
-      line = aline
-    return line.split(",")
-
-def get_origin_destination():
-    lineA = random_line()
-    postcodeA = lineA[0][1:-1]
-    lineB = random_line()
-    postcodeB = lineB[0][1:-1]
-
-    return postcodeA, postcodeB
 
 def test():
-    origin, destination = get_origin_destination()
+    df = GetLocationData()
+    rns = np.random.uniform(0, df.shape[0], 2)
+    origin, destination = df.ix[rns].ZIP.values
     duration_s, distance_m, v_ave_kmph = GetData(origin, destination)
     print "{} to {} is {} km, takes {} hours so v_ave = {} km/h".format(
            origin, destination, distance_m*1e-3, duration_s/(60.0*60), v_ave_kmph)
@@ -88,7 +74,7 @@ def UpdateResults(file_name, results):
         df = pd.DataFrame(results, index=[0])
     df.to_csv(file_name, sep=" ")   
 
-def CollectResults(N, Country):
+def CollectResults(N, CC):
     """ Randomly select N pairs of postcodes from Country and save results
 
     Parameters
@@ -99,9 +85,21 @@ def CollectResults(N, Country):
         Country code, default is given by the first argument to Country argument
     """
 
-    results_file = GetResultsFile(Country)
+    df = GetLocationData()
+    df = df[df.CC == CC]
+    Nrows = df.shape[0]
+    if Nrows == 0:
+        raise ValueError("{} is not a valud Country Code (CC)".format(CC))
+    if Nrows < N:
+        logging.warning(("Number of data rows for CC={} is less than requested"
+                         "is less thnumber of data points N={}, reducing data" 
+                         "rows to N={}").format(CC, N, Nrows))
+        N = Nrows
+
+    results_file = GetResultsFile(CC)
     for i in range(N):
-        origin, destination = get_origin_destination()
+        rns = np.random.uniform(0, Nrows, 2)
+        origin, destination = df.ix[rns].ZIP.values
         try:
             duration_s, distance_m, v_ave_kmph = GetData(origin, destination)
             results = {'origin' : origin,
@@ -164,7 +162,7 @@ def _setupArgs():
 if __name__ == "__main__":
     args = _setupArgs()
     if args.CollectResults:
-        CollectResults(N=args.N, Country=args.Country)
+        CollectResults(N=args.N, CC=args.Country[0])
     if args.PlotDistanceTime:
         PlotDistanceTime(Countries=args.Country)
     if args.PlotVelocities:
