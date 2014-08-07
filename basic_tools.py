@@ -22,6 +22,16 @@ def GetCC():
     for CC in CCs:
         print "{} : {}".format(CC, len(df[df.CC==CC]))
 
+def ListDownloadedData():
+    keys = [s.split("_")[1].rstrip(".txt") for s in 
+                       os.listdir("./Results_database/")]
+
+    print "CC : Number of data points"
+    for key in keys:
+        f = GetResultsFile(key)
+        df = pd.read_csv(f, sep=" ", skipinitialspace=True)
+        print "{} : {}".format(key, len(df.index))
+
 def GetData(origin, destination, **args):
     args.update({
         'origins' : origin,
@@ -119,7 +129,8 @@ def CollectResults(N, CC):
         origin, destination = df.ix[rns].ZIP.values
         try:
             duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
-                                                         key=key)
+                                                         #key=key,
+                                                         )
             results = {'origin' : origin,
                        'destination' : destination,
                        'duration_s' : duration_s,
@@ -129,6 +140,8 @@ def CollectResults(N, CC):
             UpdateResults(results_file, results)
         except KeyError:
             pass
+        except ZeroDivisionError:
+            print "Bad data for {} {}".format(origin ,destination)
 
 def PlotDistanceTime(Countries):
     """Plot the distance against time for Country in Countries """
@@ -173,6 +186,8 @@ def _setupArgs():
                         help="Country to use datafile from")
     parser.add_argument("-g", "--GetCountryCodes", action="store_true", 
                         help="Print a list of usable Country codes")
+    parser.add_argument("-l", "--ListDownloadedData", action="store_true", 
+                        help=ListDownloadedData.__doc__)
 
     return parser.parse_args()
 
@@ -186,3 +201,5 @@ if __name__ == "__main__":
         PlotDistanceTime(Countries=args.Country)
     if args.PlotVelocities:
         PlotVelocities(Countries=args.Country)
+    if args.ListDownloadedData:
+        ListDownloadedData()
