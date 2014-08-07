@@ -61,7 +61,8 @@ def GetAPIKey():
 def GetLocationData():
     source_file = "./CSV_database/allCountries.txt"
     df = pd.read_table(source_file, sep="\t", encoding="utf8", 
-                       usecols=[0, 1], names=["CC", "ZIP"])
+                       usecols=[0, 1, 9, 10], 
+                       names=["CC", "ZIP", "lat", "lon"])
     return df
 
 def GetResultsFile(key):
@@ -127,10 +128,15 @@ def CollectResults(N, CC):
     key = GetAPIKey()
     for i in range(N):
         rns = np.random.randint(0, Nrows, 2)
-        origin, destination = df.ix[rns].ZIP.values
+        lat_orig = df.ix[rns[0]].lat
+        lon_orig = df.ix[rns[0]].lon
+        origin = str(lat_orig) + "," + str(lon_orig)
+        lat_dest = df.ix[rns[1]].lat
+        lon_dest = df.ix[rns[1]].lon
+        destination = str(lat_dest) + "," + str(lon_dest)
         try:
             duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
-                                                         key=key,
+                                                         #key=key,
                                                          )
             results = {'origin' : origin,
                        'destination' : destination,
