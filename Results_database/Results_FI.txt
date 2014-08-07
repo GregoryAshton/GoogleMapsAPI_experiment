@@ -1,0 +1,2 @@
+ destination distance_m duration_s origin v_ave_kmph
+0 54380 2294245.0 104474.0 86900 79.05586078833011
