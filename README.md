@@ -12,10 +12,13 @@ we can test the question "Which country drives the fastest?".
 
 Notes:
 -----
-Curently this requires data to be downloaded from [Dan Gibbs git repo](https://github.com/Gibbs/UK-Postcodes)
+Location data is sourced from [GeoNames](www.geonames.org), so thanks for that.
 
 Dependencies
 ------------
 + simplejson
-
    ``$ pip install simplejson``
++ pandas
+   ``$ pip install pandas``
+
+And the usual `numpy`, `matplotlib`.
