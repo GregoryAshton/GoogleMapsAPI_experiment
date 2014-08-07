@@ -160,12 +160,19 @@ def PlotDistanceTime(Countries):
     plt.legend(loc=2, frameon=False)
     plt.show()
 
-def PlotVelocities(Countries):
+def PlotVelocities(Countries, ptype='line', *args, **kwargs):
     """ Plot the velocities of the Countries """
     for Country in Countries:
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
-        plt.hist(df.v_ave_kmph, bins=50, label=Country, alpha=0.5, normed=True)
+        y, binEdges=np.histogram(df.v_ave_kmph, bins=100, normed=True)
+
+        if ptype == 'bar':
+            plt.bar(binEdges[:-1], y, width=np.diff(binEdges), 
+                    label=Country, **kwargs)
+        elif ptype == 'line':
+            bincenters = 0.5*(binEdges[1:]+binEdges[:-1])
+            plt.plot(bincenters, y, label=Country, **kwargs)
 
     plt.xlabel("Velocity [km/h]")
     plt.ylabel("Normalised count")
