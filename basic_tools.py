@@ -11,27 +11,32 @@ from matplotlib import rc_file
 import logging
 rc_file("/home/greg/Neutron_star_modelling/matplotlibrc")
 
-DISTANCEMATRIX_BASE_URL = 'http://maps.googleapis.com/maps/api/distancematrix/json'
+DISTANCEMATRIX_BASE_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
 
-def GetData(origin, destination, **geo_args):
-    geo_args.update({
+def GetData(origin, destination, **args):
+    args.update({
         'origins' : origin,
         'destinations' : destination, 
         'mode' : 'driving',
-    })
-
-    url = DISTANCEMATRIX_BASE_URL + '?' + urllib.urlencode(geo_args)
+        })
+    url = DISTANCEMATRIX_BASE_URL + '?' + urllib.urlencode(args)
     result = simplejson.load(urllib.urlopen(url))
     try:
         data = result['rows'][0]['elements'][0]
     except IndexError:
-        print("Downloaed data: ", result)
+        print("Downloaded data: ", result)
         raise LookupError("The downloaded data does not match expectations")
 
     duration = float(data['duration']['value'])
     distance = float(data['distance']['value'])
     v_ave = mps_TO_kmph(distance/duration)
     return duration, distance, v_ave
+
+def GetAPIKey():
+    " Reads the API_KEY if it exists, IOError if not"
+    with open('API_KEY', 'r') as f:
+      KEY = f.readline().rstrip("\n")
+    return KEY
 
 def GetLocationData():
     source_file = "./CSV_database/allCountries.txt"
@@ -52,7 +57,8 @@ def test():
     df = GetLocationData()
     rns = np.random.uniform(0, df.shape[0], 2)
     origin, destination = df.ix[rns].ZIP.values
-    duration_s, distance_m, v_ave_kmph = GetData(origin, destination)
+    KEY = GetAPIKey()
+    duration_s, distance_m, v_ave_kmph = GetData(origin, destination, key=KEY)
     print "{} to {} is {} km, takes {} hours so v_ave = {} km/h".format(
            origin, destination, distance_m*1e-3, duration_s/(60.0*60), v_ave_kmph)
 
@@ -87,6 +93,7 @@ def CollectResults(N, CC):
 
     df = GetLocationData()
     df = df[df.CC == CC]
+    df = df.reset_index(drop=True)
     Nrows = df.shape[0]
     if Nrows == 0:
         raise ValueError("{} is not a valud Country Code (CC)".format(CC))
@@ -97,11 +104,13 @@ def CollectResults(N, CC):
         N = Nrows
 
     results_file = GetResultsFile(CC)
+    key = GetAPIKey()
     for i in range(N):
-        rns = np.random.uniform(0, Nrows, 2)
+        rns = np.random.randint(0, Nrows, 2)
         origin, destination = df.ix[rns].ZIP.values
         try:
-            duration_s, distance_m, v_ave_kmph = GetData(origin, destination)
+            duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
+                                                         key=key)
             results = {'origin' : origin,
                        'destination' : destination,
                        'duration_s' : duration_s,
