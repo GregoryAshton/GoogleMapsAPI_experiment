@@ -27,11 +27,14 @@ def ListDownloadedData():
     keys = [s.split("_")[1].rstrip(".txt") for s in 
                        os.listdir("./Results_database/")]
 
+    all_keys = []
     print "CC : Number of data points"
     for key in keys:
         f = GetResultsFile(key)
         df = pd.read_csv(f, sep=" ", skipinitialspace=True)
         print "{} : {}".format(key, len(df.index))
+        all_keys.append(key)
+    return all_keys
 
 def GetData(origin, destination, **args):
     args.update({
@@ -197,6 +200,44 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
     plt.legend(loc=2, frameon=False)
     plt.show()
 
+
+def PlotAveragedVelocity(Countries):
+    """ Plot the averaged velocity for all Countries 
+
+    Parameters
+    ----------
+    Countries : array_like
+        The country codes to include in the plot, if empty list then 
+        all available countries are plotted
+    """
+    if len(Countries) < 1:
+        Countries = ListDownloadedData()
+
+    average_velocities = []
+    cc_list = []
+    for Country in Countries:
+        results_file = GetResultsFile(Country)
+        df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
+        average_velocities.append(np.mean(df.v_ave_kmph.values))
+        cc_list.append(Country)
+
+    average_velocities = np.array(average_velocities)
+    cc_list = np.array(cc_list)
+
+    idx_sorted = np.argsort(average_velocities)
+    average_velocities = average_velocities[idx_sorted]
+    cc_list = cc_list[idx_sorted]
+    dummy_x = np.arange(len(cc_list))
+    
+    ax = plt.subplot(111)
+    ax.plot(dummy_x, average_velocities, "o")
+    ax.set_xticks(dummy_x)
+    ax.set_xticklabels(cc_list)
+    ax.set_xlabel("Country")
+    ax.set_ylabel("Averaged velocity [km/h]")
+    plt.show()
+
+
 def _setupArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument("-r", "--CollectResults",
@@ -209,12 +250,14 @@ def _setupArgs():
                         action="store_true", help=PlotDistanceTime.__doc__)
     parser.add_argument("-v", "--PlotVelocities", help=PlotVelocities.__doc__,
                         action="store_true")
-    parser.add_argument("-c", "--Country", default="UK", type=str, nargs="*",
+    parser.add_argument("-c", "--Country", default=[], type=str, nargs="*",
                         help="Country to use datafile from")
     parser.add_argument("-g", "--GetCountryCodes", action="store_true", 
                         help="Print a list of usable Country codes")
     parser.add_argument("-l", "--ListDownloadedData", action="store_true", 
                         help=ListDownloadedData.__doc__)
+    parser.add_argument("-a", "--PlotAveragedVelocity", action="store_true",
+                        help=PlotAveragedVelocity.__doc__)
 
     return parser.parse_args()
 
@@ -228,5 +271,8 @@ if __name__ == "__main__":
         PlotDistanceTime(Countries=args.Country)
     if args.PlotVelocities:
         PlotVelocities(Countries=args.Country)
+    if args.PlotAveragedVelocity:
+        PlotAveragedVelocity(Countries=args.Country)
+
     if args.ListDownloadedData:
         ListDownloadedData()
