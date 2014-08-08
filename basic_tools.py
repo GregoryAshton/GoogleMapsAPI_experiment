@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import rc_file
 import logging
-rc_file("/home/greg/Neutron_star_modelling/matplotlibrc")
+import time
+rc_file("./mpl_rc")
 
 DISTANCEMATRIX_BASE_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
 
@@ -136,17 +137,20 @@ def CollectResults(N, CC):
         destination = str(lat_dest) + "," + str(lon_dest)
         try:
             duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
-                                                         #key=key,
+                                                         key=key,
                                                          )
+            now = time.gmtime()
+            now_str = "{}_{}_{}".format(now.tm_year, now.tm_mon, now.tm_mday)
             results = {'origin' : origin,
                        'destination' : destination,
                        'duration_s' : duration_s,
                        'distance_m' : distance_m,
-                       'v_ave_kmph' : v_ave_kmph
+                       'v_ave_kmph' : v_ave_kmph,
+                       'time' : now_str
                       }
             UpdateResults(results_file, results)
         except KeyError:
-            pass
+            print "Bad data for {} {}".format(origin ,destination)
         except ZeroDivisionError:
             print "Bad data for {} {}".format(origin ,destination)
 
