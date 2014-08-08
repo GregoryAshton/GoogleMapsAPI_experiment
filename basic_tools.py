@@ -24,6 +24,7 @@ def GetCC():
         print "{} : {}".format(CC, len(df[df.CC==CC]))
 
 def ListDownloadedData():
+    "List the downloaded data and the number of lines in each file "
     keys = [s.split("_")[1].rstrip(".txt") for s in 
                        os.listdir("./Results_database/")]
 
@@ -184,7 +185,7 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
     for Country in Countries:
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
-        y, binEdges=np.histogram(df.v_ave_kmph, bins=50, normed=True)
+        y, binEdges=np.histogram(df.v_ave_kmph, bins=75, normed=True)
 
         if ptype == 'bar':
             plt.bar(binEdges[:-1], y, width=np.diff(binEdges), 
@@ -237,28 +238,34 @@ def PlotAveragedVelocity(Countries):
     ax.set_ylabel("Averaged velocity [km/h]")
     plt.show()
 
+def _PPrintDocString(func):
+    return func.__doc__.split("\n")[0]
 
 def _setupArgs():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--CollectResults",
-                        action="store_true", help=CollectResults.__doc__)
-    parser.add_argument("-k", "--KeyFile", default=None, type=str,
-                        help="API key file to use in request")
+    parser = argparse.ArgumentParser(
+             description=("Tool set to investigate journey times and distances"
+                          "in different countries using data generated from the"
+                          "Google maps API"),
+              )
+    parser.add_argument("-r", "--CollectResults", action="store_true",
+                        help=_PPrintDocString(CollectResults))
+
     parser.add_argument("-N", default=100, type=int,
                         help="Number of points to add to file_name")
-    parser.add_argument("-p", "--PlotDistanceTime", 
-                        action="store_true", help=PlotDistanceTime.__doc__)
-    parser.add_argument("-v", "--PlotVelocities", help=PlotVelocities.__doc__,
-                        action="store_true")
+    parser.add_argument("-p", "--PlotDistanceTime", action="store_true", 
+                        help=_PPrintDocString(PlotDistanceTime))
+    parser.add_argument("-v", "--PlotVelocities", action="store_true",
+                        help=_PPrintDocString(PlotVelocities))
     parser.add_argument("-c", "--Country", default=[], type=str, nargs="*",
                         help="Country to use datafile from")
     parser.add_argument("-g", "--GetCountryCodes", action="store_true", 
                         help="Print a list of usable Country codes")
     parser.add_argument("-l", "--ListDownloadedData", action="store_true", 
-                        help=ListDownloadedData.__doc__)
+                        help=_PPrintDocString(ListDownloadedData))
     parser.add_argument("-a", "--PlotAveragedVelocity", action="store_true",
-                        help=PlotAveragedVelocity.__doc__)
-
+                        help=_PPrintDocString(PlotAveragedVelocity))
+    parser.add_argument("-k", "--KeyFile", default=None, type=str,
+                        help="API key file to use in request")
     return parser.parse_args()
 
 if __name__ == "__main__":

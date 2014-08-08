@@ -5,7 +5,7 @@ legend.fontsize : 14.0
 font.family     : serif
 font.serif      : Computer Modern
 text.usetex     : True  # use latex for all text handling
-figure.figsize  : 7.3, 4.2
+figure.figsize  : 8.0, 5.0
 axes.formatter.use_mathtext : True
 axes.formatter.limits : -3, 3
 figure.facecolor : w
