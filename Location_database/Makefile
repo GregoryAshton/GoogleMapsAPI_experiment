@@ -7,4 +7,5 @@ target:
 	rm -f ${target} ${source}
 	wget http://download.geonames.org/export/zip/allCountries.zip
 	unzip allCountries.zip
+	rm -f ${target}
 
