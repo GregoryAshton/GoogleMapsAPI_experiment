@@ -60,7 +60,7 @@ def GetAPIKey(key_file):
     return KEY
 
 def GetLocationData():
-    source_file = "./CSV_database/allCountries.txt"
+    source_file = "./Location_database/allCountries.txt"
     df = pd.read_table(source_file, sep="\t", encoding="utf8", 
                        usecols=[0, 1, 9, 10], 
                        names=["CC", "ZIP", "lat", "lon"])
@@ -181,7 +181,7 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
     for Country in Countries:
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
-        y, binEdges=np.histogram(df.v_ave_kmph, bins=100, normed=True)
+        y, binEdges=np.histogram(df.v_ave_kmph, bins=50, normed=True)
 
         if ptype == 'bar':
             plt.bar(binEdges[:-1], y, width=np.diff(binEdges), 
