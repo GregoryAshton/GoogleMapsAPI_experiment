@@ -138,11 +138,11 @@ def CollectResults(N, CC, key_file=None):
 
     for i in range(N):
         rns = np.random.randint(0, Nrows, 2)
-        lat_orig = df.ix[rns[0]].lat
-        lon_orig = df.ix[rns[0]].lon
+        lat_orig = df.ix[rns[0]]['lat']
+        lon_orig = df.ix[rns[0]]['lon']
         origin = str(lat_orig) + "," + str(lon_orig)
-        lat_dest = df.ix[rns[1]].lat
-        lon_dest = df.ix[rns[1]].lon
+        lat_dest = df.ix[rns[1]]['lat']
+        lon_dest = df.ix[rns[1]]['lon']
         destination = str(lat_dest) + "," + str(lon_dest)
         try:
             duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
