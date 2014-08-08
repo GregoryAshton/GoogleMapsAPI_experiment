@@ -53,9 +53,9 @@ def GetData(origin, destination, **args):
     v_ave = mps_TO_kmph(distance/duration)
     return duration, distance, v_ave
 
-def GetAPIKey():
+def GetAPIKey(key_file):
     " Reads the API_KEY if it exists, IOError if not"
-    with open('API_KEY', 'r') as f:
+    with open(key_file, 'r') as f:
       KEY = f.readline().rstrip("\n")
     return KEY
 
@@ -102,7 +102,7 @@ def UpdateResults(file_name, results):
         df = pd.DataFrame(results, index=[0])
     df.to_csv(file_name, sep=" ")   
 
-def CollectResults(N, CC):
+def CollectResults(N, CC, key_file=None):
     """ Randomly select N pairs of postcodes from Country and save results
 
     Parameters
@@ -126,7 +126,13 @@ def CollectResults(N, CC):
         N = Nrows
 
     results_file = GetResultsFile(CC)
-    key = GetAPIKey()
+
+    if key_file:
+        key = GetAPIKey(key_file)
+        kwargs = {'key':key}
+    else:
+        kwargs = {}
+
     for i in range(N):
         rns = np.random.randint(0, Nrows, 2)
         lat_orig = df.ix[rns[0]].lat
@@ -137,8 +143,7 @@ def CollectResults(N, CC):
         destination = str(lat_dest) + "," + str(lon_dest)
         try:
             duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
-                                                         key=key,
-                                                         )
+                                                         **kwargs)
             now = time.gmtime()
             now_str = "{}_{}_{}".format(now.tm_year, now.tm_mon, now.tm_mday)
             results = {'origin' : origin,
@@ -196,6 +201,8 @@ def _setupArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument("-r", "--CollectResults",
                         action="store_true", help=CollectResults.__doc__)
+    parser.add_argument("-k", "--KeyFile", default=None, type=str,
+                        help="API key file to use in request")
     parser.add_argument("-N", default=100, type=int,
                         help="Number of points to add to file_name")
     parser.add_argument("-p", "--PlotDistanceTime", 
@@ -216,7 +223,7 @@ if __name__ == "__main__":
     if args.GetCountryCodes:
         GetCC()
     if args.CollectResults:
-        CollectResults(N=args.N, CC=args.Country[0])
+        CollectResults(N=args.N, CC=args.Country[0], key_file=args.KeyFile)
     if args.PlotDistanceTime:
         PlotDistanceTime(Countries=args.Country)
     if args.PlotVelocities:
