@@ -14,6 +14,13 @@ Notes:
 -----
 Location data is sourced from [GeoNames](www.geonames.org), so thanks for that.
 
+Installation:
+------------
+Install dependencies, if you have pip installed then
+``$ sudo pip install simplejson``
+``$ sudo pip install pandas``
+
+
 Dependencies
 ------------
 + simplejson
@@ -22,3 +29,5 @@ Dependencies
    ``$ pip install pandas``
 
 And the usual `numpy`, `matplotlib`.
+
+
