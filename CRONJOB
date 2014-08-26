@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Adds this to Crontab to automatically download as much data as possible
+# Picks a country at random 
+# If an api key is saved as API_KEY in the correct directory then this will
+# be used.
+
+LOG_FILE=cronlog.txt
+DIR=/home/greg/GoogleMapsAPI_experiment/
+LOG_FILE=$DIR/$LOG_FILE
+API_KEY=$DIR/API_KEY
+N=2500
+
+cd $DIR
+echo >> $LOG_FILE
+echo "=== Recording results ===" >> $LOG_FILE
+date >> $LOG_FILE
+echo " Not using the API key" >> $LOG_FILE
+./basic_tools.py -r -c R -N $N &>>$LOG_FILE
+
+if [ -e $API_KEY ]; then 
+echo "Using the API key" >> $LOG_FILE
+./basic_tools.py -r -c R -N $N -k $API_KEY &>>$LOG_FILE
+fi
+
+echo $"=== Finished ===" >> $LOG_FILE

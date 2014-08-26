@@ -14,14 +14,17 @@ rc_file("./mpl_rc")
 
 DISTANCEMATRIX_BASE_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
 
-def GetCC():
+def GetCC(Print=True):
     df = GetLocationData()
     CCs = np.unique(df.CC.values)
 
-    print "List of Country Codes:"
-    print "Country codes : # entries"
-    for CC in CCs:
-        print "{} : {}".format(CC, len(df[df.CC==CC]))
+    if Print:
+        print "List of Country Codes:"
+        print "Country codes : # entries"
+        for CC in CCs:
+            print "{} : {}".format(CC, len(df[df.CC==CC]))
+    else: 
+        return CCs
 
 def ListDownloadedData():
     "List the downloaded data and the number of lines in each file "
@@ -106,6 +109,13 @@ def UpdateResults(file_name, results):
         df = pd.DataFrame(results, index=[0])
     df.to_csv(file_name, sep=" ")   
 
+def GetDataFrame(CC):
+    """ Return data frame given a country code """
+    df = GetLocationData()
+    df = df[df.CC == CC]
+    df = df.reset_index(drop=True)
+    return df
+
 def CollectResults(N, CC, key_file=None):
     """ Randomly select N pairs of postcodes from Country and save results
 
@@ -115,19 +125,31 @@ def CollectResults(N, CC, key_file=None):
         Integer number of results two collect
     Country : str
         Country code, default is given by the first argument to Country argument
+
+    Note: If CC=="R" then a country will be selected at random which has Nrows
+          greater than 1000.
     """
 
-    df = GetLocationData()
-    df = df[df.CC == CC]
-    df = df.reset_index(drop=True)
-    Nrows = df.shape[0]
-    if Nrows == 0:
-        raise ValueError("{} is not a valud Country Code (CC)".format(CC))
-    if Nrows < N:
-        logging.warning(("Number of data rows for CC={} is less than requested"
-                         "is less thnumber of data points N={}, reducing data" 
-                         "rows to N={}").format(CC, N, Nrows))
-        N = Nrows
+    if CC in ["R", "Random"]:
+        Nrows = 0
+        while Nrows < 1000:
+            CCs = GetCC(Print=False)
+            CC = CCs[np.random.randint(0, len(CCs))]
+            df = GetDataFrame(CC)
+            Nrows = df.shape[0]
+
+        print "Country picked at random is: {}".format(CC)
+
+    else:
+        df = GetDataFrame(CC) 
+        Nrows = df.shape[0]
+        if Nrows == 0:
+            raise ValueError("{} is not a valid Country Code (CC)".format(CC))
+        if Nrows < N:
+            logging.warning(("Number of data rows for CC={} is less than the \n"
+                             "requested number of data points N={}. Reducing\n" 
+                             "data rows to N={}").format(CC, N, Nrows))
+            N = Nrows
 
     results_file = GetResultsFile(CC)
 
@@ -280,6 +302,5 @@ if __name__ == "__main__":
         PlotVelocities(Countries=args.Country)
     if args.PlotAveragedVelocity:
         PlotAveragedVelocity(Countries=args.Country)
-
     if args.ListDownloadedData:
         ListDownloadedData()
