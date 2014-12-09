@@ -265,6 +265,48 @@ def PlotAveragedVelocity(Countries):
     plt.savefig("img/AverageVelocityPerCountry.png")
     plt.show()
 
+def PlotNumberSavedResults(Countries):
+    """ Plot a histogram of the number of data points for each country
+
+    Parameters
+    ----------
+    Countries : array_like
+        The country codes to include in the plot, if empty list then 
+        all available countries are plotted
+    """
+    if len(Countries) < 1:
+        Countries = ListDownloadedData()
+
+    num_data_points = []
+    cc_list = []
+    for Country in Countries:
+        results_file = GetResultsFile(Country)
+        df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
+        num_data_points.append(len(df.v_ave_kmph.values))
+        cc_list.append(Country)
+
+    num_data_points = np.array(num_data_points)
+    cc_list = np.array(cc_list)
+
+    idx_sorted = np.argsort(num_data_points)
+    num_data_points = num_data_points[idx_sorted]
+    cc_list = cc_list[idx_sorted]
+    dummy_x = np.arange(len(cc_list))  
+
+    fig, ax = plt.subplots(figsize=(14, 5))
+    ax.bar(dummy_x, num_data_points, facecolor="blue", alpha=0.5)
+    ax.set_xticks(dummy_x+.5 * np.diff(dummy_x[:2]))
+    ax.set_xticklabels(cc_list)
+    for tick in ax.xaxis.get_major_ticks()[::2]:
+        tick.set_pad(17)
+
+    ax.set_ylabel("Data count", size=20)
+    ax.set_xlabel("Country", size=20)
+
+    plt.tight_layout()
+    plt.savefig("img/HistogramDataCount.png")
+    plt.show()
+
 def _PPrintDocString(func):
     return func.__doc__.split("\n")[0]
 
@@ -293,6 +335,8 @@ def _setupArgs():
                         help=_PPrintDocString(PlotAveragedVelocity))
     parser.add_argument("-k", "--KeyFile", default=None, type=str,
                         help="API key file to use in request")
+    parser.add_argument("-n", "--NumberOfDataPoints", action="store_true",
+                        help=_PPrintDocString(PlotNumberSavedResults))
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -309,3 +353,5 @@ if __name__ == "__main__":
         PlotAveragedVelocity(Countries=args.Country)
     if args.ListDownloadedData:
         ListDownloadedData()
+    if args.NumberOfDataPoints:
+        PlotNumberSavedResults(Countries=args.Country)

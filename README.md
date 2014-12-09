@@ -4,7 +4,7 @@ Google maps travel time experiment
 
 This project aims to use the travel time data provided by Google through it's
 [Distance matrix API](https://developers.google.com/maps/documentation/distancematrix/)
-to perform experiments. 
+to perform experiments. The results can be found [here](Results.md)
 
 There is a location database and a results database, the locations are latatide
  and longitude pairs taken from [GeoNames](www.geonames.org). The results come
