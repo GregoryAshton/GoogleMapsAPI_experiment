@@ -11,10 +11,8 @@ Firstly lets check that we have generated a sufficient amount of data for the
 results to be meaningful. This can be done by simply plotting a bar-chart of
 the number of data points per country:
 
-<img src="./img/HistogramDataCount.png" 
-     alt="Histogram of the data count for each country" 
->
-It appears that apart from a per countries, we have generated over 1000 data
+!["Histogram of the data count for each country"]("./img/HistogramDataCount.png")
+
 points for most of the countries. In the future analysis we should be wary
 of results from those countries with the smallest data count: GF (French Guiana),
 MK (Macedonie), and DO (Dominican Republic). 
@@ -28,10 +26,8 @@ collection technique. Nevertheless taking a naive approach and just averaging
 the journey velocities grouped by country we can plot the averaged velcity in
 increasing order:
 
-<img src="./img/AverageVelocityPerCountry.png" 
-     alt="Average Velocity per Country" 
->
-This paints a somewhat surprising picture: the fastest country (by this metric)
+!["Average Velocity per Country"]("./img/AverageVelocityPerCountry.png")
+
 is the US. This doesn't fit with many peoples expectations and we might guess
 this has something to do with the difference in size between the US and other
 countries. 
@@ -54,10 +50,7 @@ histogram.
 For example lets compare a fast country Germany (DE) with a slower country such
 as Turkey (TR)
 
-<img src="./img/DE_TR.png" 
-     alt="Comparing velocity profile of DE and TR" 
-     height="300" width="500"
->
+!["Comparing velocity profile of DE and TR"]("./img/DE_TR.png")
 
 There is a marked difference in the distributions. Namely the slower country
 has a much longer tail in the increasing velocity direction while the faster
@@ -70,30 +63,19 @@ These two examples are quite interesting due to their double peaks
 
 #### Bangladesh
 
-<img src="./img/BD.png" 
-     alt="Velocity profile of BD" 
-     height="300" width="500"
->
+!["Velocity profile of BD"]("./img/BD.png")
 
 #### Italy
 
-<img src="./img/IT.png" 
-     alt="Velocity profile of BD" 
-     height="300" width="500"
->
+!["Velocity profile of IT"]("./img/IT.png")
+
 #### Ones that people might want to see
-<img src="./img/GB.png" 
-     alt="Velocity profile of BD" 
-     height="300" width="500"
->
-<img src="./img/MX.png" 
-     alt="Velocity profile of BD" 
-     height="300" width="500"
->
-<img src="./img/US.png" 
-     alt="Velocity profile of BD" 
-     height="300" width="500"
->
+
+!["Velocity profile of GB"]("./img/GB.png")
+
+!["Velocity profile of MX"]("./img/MX.png")
+
+!["Velocity profile of US"]("./img/US.png")
 
 
 
