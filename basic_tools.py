@@ -252,12 +252,17 @@ def PlotAveragedVelocity(Countries):
     cc_list = cc_list[idx_sorted]
     dummy_x = np.arange(len(cc_list))
     
-    ax = plt.subplot(111)
-    ax.plot(dummy_x, average_velocities, "o")
+    fig, ax = plt.subplots(figsize=(14, 5))
+    ax.plot(dummy_x, average_velocities, "o", color="k")
     ax.set_xticks(dummy_x)
-    ax.set_xticklabels(cc_list)
+    ax.set_xticklabels(cc_list, rotation=0)
+    for tick in ax.xaxis.get_major_ticks()[::2]:
+        tick.set_pad(17)
+
     ax.set_xlabel("Country")
     ax.set_ylabel("Averaged velocity [km/h]")
+    plt.tight_layout()
+    plt.savefig("img/AverageVelocityPerCountry.png")
     plt.show()
 
 def _PPrintDocString(func):
