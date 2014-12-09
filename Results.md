@@ -11,8 +11,9 @@ Firstly lets check that we have generated a sufficient amount of data for the
 results to be meaningful. This can be done by simply plotting a bar-chart of
 the number of data points per country:
 
-!["Histogram of the data count for each country"]("./img/HistogramDataCount.png")
+!["Histogram of the data count for each country"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/HistogramDataCount.png")
 
+It appears that apart from a per countries, we have generated over 1000 data
 points for most of the countries. In the future analysis we should be wary
 of results from those countries with the smallest data count: GF (French Guiana),
 MK (Macedonie), and DO (Dominican Republic). 
@@ -23,11 +24,12 @@ Averaged velocities
 The first and easiest question to ask the data is: "which country is the
 fastest?". Of course this comes with a huge number of caveats due to the data
 collection technique. Nevertheless taking a naive approach and just averaging
-the journey velocities grouped by country we can plot the averaged velcity in
+the journey velocities grouped by country we can plot the averaged velocity in
 increasing order:
 
-!["Average Velocity per Country"]("./img/AverageVelocityPerCountry.png")
+!["Average Velocity per Country"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/AverageVelocityPerCountry.png")
 
+This paints a somewhat surprising picture: the fastest country (by this metric)
 is the US. This doesn't fit with many peoples expectations and we might guess
 this has something to do with the difference in size between the US and other
 countries. 
@@ -50,7 +52,7 @@ histogram.
 For example lets compare a fast country Germany (DE) with a slower country such
 as Turkey (TR)
 
-!["Comparing velocity profile of DE and TR"]("./img/DE_TR.png")
+!["Comparing velocity profile of DE and TR"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/DE_TR.png")
 
 There is a marked difference in the distributions. Namely the slower country
 has a much longer tail in the increasing velocity direction while the faster
@@ -63,19 +65,19 @@ These two examples are quite interesting due to their double peaks
 
 #### Bangladesh
 
-!["Velocity profile of BD"]("./img/BD.png")
+!["Velocity profile of BD"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/BD.png")
 
 #### Italy
 
-!["Velocity profile of IT"]("./img/IT.png")
+!["Velocity profile of IT"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/IT.png")
 
 #### Ones that people might want to see
 
-!["Velocity profile of GB"]("./img/GB.png")
+!["Velocity profile of GB"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/GB.png")
 
-!["Velocity profile of MX"]("./img/MX.png")
+!["Velocity profile of MX"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/MX.png")
 
-!["Velocity profile of US"]("./img/US.png")
+!["Velocity profile of US"]("https://github.com/ga7g08/GoogleMapsAPI_experiment/img/US.png")
 
 
 
