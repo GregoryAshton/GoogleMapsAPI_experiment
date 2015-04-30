@@ -18,16 +18,16 @@ points for most of the countries. In the future analysis we should be wary
 of results from those countries with the smallest data count: GF (French Guiana),
 MK (Macedonie), and DO (Dominican Republic). 
 
-Averaged velocities
+Averaged speeds
 -------------------
 
 The first and easiest question to ask the data is: "which country is the
 fastest?". Of course this comes with a huge number of caveats due to the data
 collection technique. Nevertheless taking a naive approach and just averaging
-the journey velocities grouped by country we can plot the averaged velocity in
+the journey speeds grouped by country we can plot the averaged speeds in
 increasing order:
 
-!["Average Velocity per Country"](https://raw.githubusercontent.com/ga7g08/GoogleMapsAPI_experiment/master/img/AverageVelocityPerCountry.png)
+!["Average Speed per Country"](https://raw.githubusercontent.com/ga7g08/GoogleMapsAPI_experiment/master/img/AverageSpeedPerCountry.png)
 
 This paints a somewhat surprising picture: the fastest country (by this metric)
 is the US. This doesn't fit with many peoples expectations and we might guess
@@ -41,10 +41,10 @@ than picking any two points in another smaller country. The result is that
 almost all the journeys in the US are along interstate highways. I suspect 
 that this causes a bias for faster journeys. 
 
-Velocity Profile
+Speed Profile
 ----------------
 
-A more interesting way to investigate the data is to look at the "velocity 
+A more interesting way to investigate the data is to look at the "speeds 
 profile" in a country. This described the distribution of journey speeds in 
 that country and is calculated by binning all the individual journeys in a 
 histogram. 
@@ -52,11 +52,11 @@ histogram.
 For example lets compare a fast country Germany (DE) with a slower country such
 as Turkey (TR)
 
-!["Comparing velocity profile of DE and TR"](https://raw.githubusercontent.com/ga7g08/GoogleMapsAPI_experiment/master/img/DE_TR.png)
+!["Comparing speeds profile of DE and TR"](https://raw.githubusercontent.com/ga7g08/GoogleMapsAPI_experiment/master/img/DE_TR.png)
 
 There is a marked difference in the distributions. Namely the slower country
-has a much longer tail in the increasing velocity direction while the faster
-countries velocity drops off sharply. This suggests the vehicles in the faster
+has a much longer tail in the increasing speeds direction while the faster
+countries speeds drops off sharply. This suggests the vehicles in the faster
 country are limited by a speed limit while in the slower country this is not 
 the case.
 

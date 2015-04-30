@@ -23,12 +23,12 @@ def GetCC(Print=True):
         print "Country codes : # entries"
         for CC in CCs:
             print "{} : {}".format(CC, len(df[df.CC==CC]))
-    else: 
+    else:
         return CCs
 
 def ListDownloadedData():
     "List the downloaded data and the number of lines in each file "
-    keys = [s.split("_")[1].rstrip(".txt") for s in 
+    keys = [s.split("_")[1].rstrip(".txt") for s in
                        os.listdir("./Results_database/")]
 
     all_keys = []
@@ -43,7 +43,7 @@ def ListDownloadedData():
 def GetData(origin, destination, **args):
     args.update({
         'origins' : origin,
-        'destinations' : destination, 
+        'destinations' : destination,
         'mode' : 'driving',
         'units' : 'metric'
         })
@@ -68,8 +68,8 @@ def GetAPIKey(key_file):
 
 def GetLocationData():
     source_file = "./Location_database/allCountries.txt"
-    df = pd.read_table(source_file, sep="\t", encoding="utf8", 
-                       usecols=[0, 1, 9, 10], 
+    df = pd.read_table(source_file, sep="\t", encoding="utf8",
+                       usecols=[0, 1, 9, 10],
                        names=["CC", "ZIP", "lat", "lon"])
     return df
 
@@ -92,7 +92,7 @@ def test():
            origin, destination, distance_m*1e-3, duration_s/(60.0*60), v_ave_kmph)
 
 def UpdateResults(file_name, results):
-    """ Look for existing file and append new results, if it doesn't 
+    """ Look for existing file and append new results, if it doesn't
         exist then create it
 
     parameters
@@ -107,7 +107,7 @@ def UpdateResults(file_name, results):
         df = df.append(results, ignore_index=True)
     else:
         df = pd.DataFrame(results, index=[0])
-    df.to_csv(file_name, sep=" ")   
+    df.to_csv(file_name, sep=" ")
 
 def GetDataFrame(CC):
     """ Return data frame given a country code """
@@ -141,13 +141,13 @@ def CollectResults(N, CC, key_file=None):
         print "Country picked at random is: {}".format(CC)
 
     else:
-        df = GetDataFrame(CC) 
+        df = GetDataFrame(CC)
         Nrows = df.shape[0]
         if Nrows == 0:
             raise ValueError("{} is not a valid Country Code (CC)".format(CC))
         if Nrows < N:
             logging.warning(("Number of data rows for CC={} is less than the \n"
-                             "requested number of data points N={}. Reducing\n" 
+                             "requested number of data points N={}. Reducing\n"
                              "data rows to N={}").format(CC, N, Nrows))
             N = Nrows
 
@@ -168,7 +168,7 @@ def CollectResults(N, CC, key_file=None):
         lon_dest = df.ix[rns[1]]['lon']
         destination = str(lat_dest) + "," + str(lon_dest)
         try:
-            duration_s, distance_m, v_ave_kmph = GetData(origin, destination, 
+            duration_s, distance_m, v_ave_kmph = GetData(origin, destination,
                                                          **kwargs)
             now = time.gmtime()
             now_str = "{}_{}_{}".format(now.tm_year, now.tm_mon, now.tm_mday)
@@ -203,14 +203,14 @@ def PlotDistanceTime(Countries):
     plt.show()
 
 def PlotVelocities(Countries, ptype='line', *args, **kwargs):
-    """ Plot the velocities of the Countries """
+    """ Plot the speeds of the Countries """
     for Country in Countries:
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
         y, binEdges=np.histogram(df.v_ave_kmph, bins=75, normed=True)
 
         if ptype == 'bar':
-            plt.bar(binEdges[:-1], y, width=np.diff(binEdges), 
+            plt.bar(binEdges[:-1], y, width=np.diff(binEdges),
                     label=Country, **kwargs)
         elif ptype == 'line':
             c = np.random.uniform(0, 1, 3)
@@ -218,51 +218,51 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
             plt.plot(bincenters, y, label=Country, color=c, **kwargs)
             plt.fill_between(bincenters, 0, y, color=c, alpha=0.2)
 
-    plt.xlabel("Velocity [km/h]")
+    plt.xlabel("Speed [km/h]")
     plt.ylabel("Normalised count")
     plt.legend(loc=2, frameon=False)
     plt.show()
 
 
-def PlotAveragedVelocity(Countries):
-    """ Plot the averaged velocity for all Countries 
+def PlotAveragedSpeed(Countries):
+    """ Plot the averaged speed for all Countries
 
     Parameters
     ----------
     Countries : array_like
-        The country codes to include in the plot, if empty list then 
+        The country codes to include in the plot, if empty list then
         all available countries are plotted
     """
     if len(Countries) < 1:
         Countries = ListDownloadedData()
 
-    average_velocities = []
+    average_speeds = []
     cc_list = []
     for Country in Countries:
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
-        average_velocities.append(np.mean(df.v_ave_kmph.values))
+        average_speeds.append(np.mean(df.v_ave_kmph.values))
         cc_list.append(Country)
 
-    average_velocities = np.array(average_velocities)
+    average_speeds = np.array(average_speeds)
     cc_list = np.array(cc_list)
 
-    idx_sorted = np.argsort(average_velocities)
-    average_velocities = average_velocities[idx_sorted]
+    idx_sorted = np.argsort(average_speeds)
+    average_speeds = average_speeds[idx_sorted]
     cc_list = cc_list[idx_sorted]
     dummy_x = np.arange(len(cc_list))
-    
+
     fig, ax = plt.subplots(figsize=(14, 5))
-    ax.plot(dummy_x, average_velocities, "o", color="k")
+    ax.plot(dummy_x, average_speeds, "o", color="k")
     ax.set_xticks(dummy_x)
     ax.set_xticklabels(cc_list, rotation=0)
     for tick in ax.xaxis.get_major_ticks()[::2]:
         tick.set_pad(17)
 
     ax.set_xlabel("Country")
-    ax.set_ylabel("Averaged velocity [km/h]")
+    ax.set_ylabel("Averaged speed [km/h]")
     plt.tight_layout()
-    plt.savefig("img/AverageVelocityPerCountry.png")
+    plt.savefig("img/AverageSpeedPerCountry.png")
     plt.show()
 
 def PlotNumberSavedResults(Countries):
@@ -271,7 +271,7 @@ def PlotNumberSavedResults(Countries):
     Parameters
     ----------
     Countries : array_like
-        The country codes to include in the plot, if empty list then 
+        The country codes to include in the plot, if empty list then
         all available countries are plotted
     """
     if len(Countries) < 1:
@@ -291,7 +291,7 @@ def PlotNumberSavedResults(Countries):
     idx_sorted = np.argsort(num_data_points)
     num_data_points = num_data_points[idx_sorted]
     cc_list = cc_list[idx_sorted]
-    dummy_x = np.arange(len(cc_list))  
+    dummy_x = np.arange(len(cc_list))
 
     fig, ax = plt.subplots(figsize=(14, 5))
     ax.bar(dummy_x, num_data_points, facecolor="blue", alpha=0.5)
@@ -321,18 +321,18 @@ def _setupArgs():
 
     parser.add_argument("-N", default=100, type=int,
                         help="Number of points to add to file_name")
-    parser.add_argument("-p", "--PlotDistanceTime", action="store_true", 
+    parser.add_argument("-p", "--PlotDistanceTime", action="store_true",
                         help=_PPrintDocString(PlotDistanceTime))
     parser.add_argument("-v", "--PlotVelocities", action="store_true",
                         help=_PPrintDocString(PlotVelocities))
     parser.add_argument("-c", "--Country", default=[], type=str, nargs="*",
                         help="Country to use datafile from")
-    parser.add_argument("-g", "--GetCountryCodes", action="store_true", 
+    parser.add_argument("-g", "--GetCountryCodes", action="store_true",
                         help="Print a list of usable Country codes")
-    parser.add_argument("-l", "--ListDownloadedData", action="store_true", 
+    parser.add_argument("-l", "--ListDownloadedData", action="store_true",
                         help=_PPrintDocString(ListDownloadedData))
-    parser.add_argument("-a", "--PlotAveragedVelocity", action="store_true",
-                        help=_PPrintDocString(PlotAveragedVelocity))
+    parser.add_argument("-a", "--PlotAveragedSpeed", action="store_true",
+                        help=_PPrintDocString(PlotAveragedSpeed))
     parser.add_argument("-k", "--KeyFile", default=None, type=str,
                         help="API key file to use in request")
     parser.add_argument("-n", "--NumberOfDataPoints", action="store_true",
@@ -349,8 +349,8 @@ if __name__ == "__main__":
         PlotDistanceTime(Countries=args.Country)
     if args.PlotVelocities:
         PlotVelocities(Countries=args.Country)
-    if args.PlotAveragedVelocity:
-        PlotAveragedVelocity(Countries=args.Country)
+    if args.PlotAveragedSpeed:
+        PlotAveragedSpeed(Countries=args.Country)
     if args.ListDownloadedData:
         ListDownloadedData()
     if args.NumberOfDataPoints:

@@ -64,7 +64,7 @@ want to include
 
   ``$ ./basic_tools -p -c GB MX``
 
-+ Velocity distrubution graphs can similarly be obtained from
++ Speed distrubution graphs can similarly be obtained from
 
   ``$ ./basic_tools -v -c US MX``
 
