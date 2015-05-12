@@ -26,17 +26,17 @@ def GetCC(Print=True):
     else:
         return CCs
 
-def ListDownloadedData():
+def ListDownloadedData(verbatim=True):
     "List the downloaded data and the number of lines in each file "
     keys = [s.split("_")[1].rstrip(".txt") for s in
                        os.listdir("./Results_database/")]
 
     all_keys = []
-    print "CC : Number of data points"
+    if verbatim: print("CC : Number of data points")
     for key in keys:
         f = GetResultsFile(key)
         df = pd.read_csv(f, sep=" ", skipinitialspace=True)
-        print "{} : {}".format(key, len(df.index))
+        if verbatim: print("{} : {}".format(key, len(df.index)))
         all_keys.append(key)
     return all_keys
 
@@ -224,6 +224,19 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
     plt.show()
 
 
+def PrintAveragedSpeeds():
+    """ Print the averaged speeds, used for subsequent analysis """
+
+    print("Country, Ave, Std")
+    Countries = ListDownloadedData(verbatim=False)
+    for Country in Countries:
+        results_file = GetResultsFile(Country)
+        df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
+        ave = np.mean(df.v_ave_kmph.values)
+        std = np.std(df.v_ave_kmph.values)
+        print("{}, {}, {}".format(Country, ave, std))
+
+
 def PlotAveragedSpeed(Countries):
     """ Plot the averaged speed for all Countries
 
@@ -337,6 +350,8 @@ def _setupArgs():
                         help="API key file to use in request")
     parser.add_argument("-n", "--NumberOfDataPoints", action="store_true",
                         help=_PPrintDocString(PlotNumberSavedResults))
+    parser.add_argument("--PrintAveragedSpeeds", action="store_true",
+                        help=_PPrintDocString(PrintAveragedSpeeds))
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -355,3 +370,5 @@ if __name__ == "__main__":
         ListDownloadedData()
     if args.NumberOfDataPoints:
         PlotNumberSavedResults(Countries=args.Country)
+    if args.PrintAveragedSpeeds:
+        PrintAveragedSpeeds()
