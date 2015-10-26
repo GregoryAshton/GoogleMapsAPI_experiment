@@ -10,6 +10,7 @@ import numpy as np
 from matplotlib import rc_file
 import logging
 import time
+import scipy.stats as ss
 rc_file("./mpl_rc")
 
 DISTANCEMTX_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
@@ -218,8 +219,16 @@ def PlotDistanceTime(Countries):
     plt.show()
 
 
-def PlotVelocities(Countries, ptype='line', *args, **kwargs):
-    """ Plot the speeds of the Countries """
+def FitNormal(x):
+    xvals = np.linspace(x.min(), x.max(), 1000)
+    out = ss.truncnorm.fit(x)
+    print out
+    plt.plot(xvals, ss.norm.pdf(xvals, *out[:-2]))
+
+
+
+def PlotSpeedDistribution(Countries, ptype='line', *args, **kwargs):
+    """ Plot the speeds distribution for Countries """
     for Country in Countries:
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
@@ -233,6 +242,8 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
             bincenters = 0.5*(binEdges[1:]+binEdges[:-1])
             plt.plot(bincenters, y, label=Country, color=c, **kwargs)
             plt.fill_between(bincenters, 0, y, color=c, alpha=0.2)
+
+        FitNormal(df.v_ave_kmph)
 
     plt.xlabel("Speed [km/h]")
     plt.ylabel("Normalised count")
@@ -355,8 +366,8 @@ def _setupArgs():
                         help="Number of points to add to file_name")
     parser.add_argument("-p", "--PlotDistanceTime", action="store_true",
                         help=_PPrintDocString(PlotDistanceTime))
-    parser.add_argument("-v", "--PlotVelocities", action="store_true",
-                        help=_PPrintDocString(PlotVelocities))
+    parser.add_argument("-s", "--PlotSpeedDistribution", action="store_true",
+                        help=_PPrintDocString(PlotSpeedDistribution))
     parser.add_argument("-c", "--Country", default=[], type=str, nargs="*",
                         help="Country to use datafile from")
     parser.add_argument("-g", "--GetCountryCodes", action="store_true",
@@ -381,8 +392,8 @@ if __name__ == "__main__":
         CollectResults(N=args.N, CC=args.Country[0], key_file=args.KeyFile)
     if args.PlotDistanceTime:
         PlotDistanceTime(Countries=args.Country)
-    if args.PlotVelocities:
-        PlotVelocities(Countries=args.Country)
+    if args.PlotSpeedDistribution:
+        PlotSpeedDistribution(Countries=args.Country)
     if args.PlotAveragedSpeed:
         PlotAveragedSpeed(Countries=args.Country)
     if args.ListDownloadedData:
