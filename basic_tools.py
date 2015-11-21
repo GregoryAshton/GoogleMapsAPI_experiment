@@ -10,6 +10,9 @@ import numpy as np
 from matplotlib import rc_file
 import logging
 import time
+import scipy.stats as ss
+import scipy.special as sp
+import scipy.optimize as so
 rc_file("./mpl_rc")
 
 DISTANCEMATRIX_BASE_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
@@ -202,6 +205,20 @@ def PlotDistanceTime(Countries):
     plt.legend(loc=2, frameon=False)
     plt.show()
 
+
+def SkewedGaussianFit(x, y, plot=True):
+    from lmfit.models import SkewedGaussianModel
+    model = SkewedGaussianModel()
+    params = model.make_params(amplitude=1, center=60, sigma=30, gamma=0)
+
+    # adjust parameters  to best fit data.
+    result = model.fit(y, params, x=x)
+
+    v = result.values
+    plt.plot(x, result.best_fit)
+    return v['center'], v['gamma']
+
+
 def PlotVelocities(Countries, ptype='line', *args, **kwargs):
     """ Plot the speeds of the Countries """
     for Country in Countries:
@@ -217,6 +234,8 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
             bincenters = 0.5*(binEdges[1:]+binEdges[:-1])
             plt.plot(bincenters, y, label=Country, color=c, **kwargs)
             plt.fill_between(bincenters, 0, y, color=c, alpha=0.2)
+
+            print SkewedGaussianFit(bincenters, y)
 
     plt.xlabel("Speed [km/h]")
     plt.ylabel("Normalised count")
