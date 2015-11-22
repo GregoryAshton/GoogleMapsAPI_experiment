@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-import simplejson, urllib
-import random
+import simplejson
+import urllib
 import os
 import pandas as pd
 import argparse
@@ -15,7 +15,8 @@ import scipy.special as sp
 import scipy.optimize as so
 rc_file("./mpl_rc")
 
-DISTANCEMATRIX_BASE_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
+DISTANCEMTX_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json'
+
 
 def GetCC(Print=True):
     df = GetLocationData()
@@ -25,32 +26,36 @@ def GetCC(Print=True):
         print "List of Country Codes:"
         print "Country codes : # entries"
         for CC in CCs:
-            print "{} : {}".format(CC, len(df[df.CC==CC]))
+            print "{} : {}".format(CC, len(df[df.CC == CC]))
     else:
         return CCs
+
 
 def ListDownloadedData(verbatim=True):
     "List the downloaded data and the number of lines in each file "
     keys = [s.split("_")[1].rstrip(".txt") for s in
-                       os.listdir("./Results_database/")]
+            os.listdir("./Results_database/")]
 
     all_keys = []
-    if verbatim: print("CC : Number of data points")
+    if verbatim:
+        print("CC : Number of data points")
     for key in keys:
         f = GetResultsFile(key)
         df = pd.read_csv(f, sep=" ", skipinitialspace=True)
-        if verbatim: print("{} : {}".format(key, len(df.index)))
+        if verbatim:
+            print("{} : {}".format(key, len(df.index)))
         all_keys.append(key)
     return all_keys
 
+
 def GetData(origin, destination, **args):
     args.update({
-        'origins' : origin,
-        'destinations' : destination,
-        'mode' : 'driving',
-        'units' : 'metric'
+        'origins': origin,
+        'destinations': destination,
+        'mode': 'driving',
+        'units': 'metric'
         })
-    url = DISTANCEMATRIX_BASE_URL + '?' + urllib.urlencode(args)
+    url = DISTANCEMTX_URL + '?' + urllib.urlencode(args)
     result = simplejson.load(urllib.urlopen(url))
     try:
         data = result['rows'][0]['elements'][0]
@@ -63,11 +68,13 @@ def GetData(origin, destination, **args):
     v_ave = mps_TO_kmph(distance/duration)
     return duration, distance, v_ave
 
+
 def GetAPIKey(key_file):
     " Reads the API_KEY if it exists, IOError if not"
     with open(key_file, 'r') as f:
-      KEY = f.readline().rstrip("\n")
+        KEY = f.readline().rstrip("\n")
     return KEY
+
 
 def GetLocationData():
     source_file = "./Location_database/allCountries.txt"
@@ -76,10 +83,12 @@ def GetLocationData():
                        names=["CC", "ZIP", "lat", "lon"])
     return df
 
+
 def GetResultsFile(key):
     directory = "./Results_database/"
     file_name = directory+"Results_{}.txt".format(key)
     return file_name
+
 
 def mps_TO_kmph(vel_mps):
     return vel_mps * 1e-3 * (60.0 * 60.0)
@@ -91,8 +100,10 @@ def test():
     origin, destination = df.ix[rns].ZIP.values
     KEY = GetAPIKey()
     duration_s, distance_m, v_ave_kmph = GetData(origin, destination, key=KEY)
-    print "{} to {} is {} km, takes {} hours so v_ave = {} km/h".format(
-           origin, destination, distance_m*1e-3, duration_s/(60.0*60), v_ave_kmph)
+    print("{} to {} is {} km, takes {} hours so v_ave = {} km/h".format(
+          origin, destination, distance_m*1e-3, duration_s/(60.0*60),
+          v_ave_kmph))
+
 
 def UpdateResults(file_name, results):
     """ Look for existing file and append new results, if it doesn't
@@ -112,12 +123,14 @@ def UpdateResults(file_name, results):
         df = pd.DataFrame(results, index=[0])
     df.to_csv(file_name, sep=" ")
 
+
 def GetDataFrame(CC):
     """ Return data frame given a country code """
     df = GetLocationData()
     df = df[df.CC == CC]
     df = df.reset_index(drop=True)
     return df
+
 
 def CollectResults(N, CC, key_file=None):
     """ Randomly select N pairs of postcodes from Country and save results
@@ -127,7 +140,8 @@ def CollectResults(N, CC, key_file=None):
     N : int
         Integer number of results two collect
     Country : str
-        Country code, default is given by the first argument to Country argument
+        Country code, default is given by the first argument to Country
+        argument
 
     Note: If CC=="R" then a country will be selected at random which has Nrows
           greater than 1000.
@@ -149,7 +163,7 @@ def CollectResults(N, CC, key_file=None):
         if Nrows == 0:
             raise ValueError("{} is not a valid Country Code (CC)".format(CC))
         if Nrows < N:
-            logging.warning(("Number of data rows for CC={} is less than the \n"
+            logging.warning(("Number of data rows for CC={} is less than \n"
                              "requested number of data points N={}. Reducing\n"
                              "data rows to N={}").format(CC, N, Nrows))
             N = Nrows
@@ -158,7 +172,7 @@ def CollectResults(N, CC, key_file=None):
 
     if key_file:
         key = GetAPIKey(key_file)
-        kwargs = {'key':key}
+        kwargs = {'key': key}
     else:
         kwargs = {}
 
@@ -175,18 +189,19 @@ def CollectResults(N, CC, key_file=None):
                                                          **kwargs)
             now = time.gmtime()
             now_str = "{}_{}_{}".format(now.tm_year, now.tm_mon, now.tm_mday)
-            results = {'origin' : origin,
-                       'destination' : destination,
-                       'duration_s' : duration_s,
-                       'distance_m' : distance_m,
-                       'v_ave_kmph' : v_ave_kmph,
-                       'time' : now_str
-                      }
+            results = {'origin': origin,
+                       'destination': destination,
+                       'duration_s': duration_s,
+                       'distance_m': distance_m,
+                       'v_ave_kmph': v_ave_kmph,
+                       'time': now_str
+                       }
             UpdateResults(results_file, results)
         except KeyError:
-            print "Bad data for {} {}".format(origin ,destination)
+            print("Bad data for {} {}".format(origin, destination))
         except ZeroDivisionError:
-            print "Bad data for {} {}".format(origin ,destination)
+            print("Bad data for {} {}".format(origin, destination))
+
 
 def PlotDistanceTime(Countries):
     """Plot the distance against time for Country in Countries """
@@ -194,9 +209,9 @@ def PlotDistanceTime(Countries):
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
 
-        print "Average speed = {} kmph in {}".format(
-                mps_TO_kmph(np.average(df.distance_m)/np.average(df.duration_s)),
-                Country)
+        print("Average speed = {} kmph in {}".format(
+            mps_TO_kmph(np.average(df.distance_m)/np.average(df.duration_s)),
+            Country))
         plt.plot(df.duration_s, df.distance_m, "o", alpha=0.3,
                  label=Country)
 
@@ -224,7 +239,7 @@ def PlotVelocities(Countries, ptype='line', *args, **kwargs):
     for Country in Countries:
         results_file = GetResultsFile(Country)
         df = pd.read_csv(results_file, sep=" ", skipinitialspace=True)
-        y, binEdges=np.histogram(df.v_ave_kmph, bins=75, normed=True)
+        y, binEdges = np.histogram(df.v_ave_kmph, bins=75, normed=True)
 
         if ptype == 'bar':
             plt.bar(binEdges[:-1], y, width=np.diff(binEdges),
@@ -297,6 +312,7 @@ def PlotAveragedSpeed(Countries):
     plt.savefig("img/AverageSpeedPerCountry.png")
     plt.show()
 
+
 def PlotNumberSavedResults(Countries):
     """ Plot a histogram of the number of data points for each country
 
@@ -339,15 +355,17 @@ def PlotNumberSavedResults(Countries):
     plt.savefig("img/HistogramDataCount.png")
     plt.show()
 
+
 def _PPrintDocString(func):
     return func.__doc__.split("\n")[0]
 
+
 def _setupArgs():
     parser = argparse.ArgumentParser(
-             description=("Tool set to investigate journey times and distances"
-                          "in different countries using data generated from the"
-                          "Google maps API"),
-              )
+        description=("Tool set to investigate journey times and distances"
+                     "in different countries using data generated from the"
+                     "Google maps API")
+        )
     parser.add_argument("-r", "--CollectResults", action="store_true",
                         help=_PPrintDocString(CollectResults))
 
